@@ -1,0 +1,81 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+*.code-workspace
+
+# ===== SPRING BOOT =====
+spring-shell.log
+
+# ===== LOGS =====
+logs/
+*.log
+*.log.*
+
+# ===== VARIABLES D'ENVIRONNEMENT (CRITIQUE) =====
+.env
+!.env.example
+
+# ===== DOCKER =====
+docker/postgres/data/
+
+# ===== BACKUPS =====
+backups/
+
+# ===== OS =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V3
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== JAVA =====
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ===== CERTIFICATS / SECRETS =====
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+firebase-credentials.json
+google-services.json
+
+
