@@ -24,6 +24,7 @@ public class AuthResponse {
     private String firstName;
     private String lastName;
     private String role;
+    private boolean mustChangePassword;
 
     public static AuthResponse of(
             String accessToken,

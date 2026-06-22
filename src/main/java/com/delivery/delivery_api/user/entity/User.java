@@ -49,6 +49,14 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean active = true;
 
+    @Column(length = 20)
+    @Builder.Default
+    private String role = "CUSTOMER";
+
+    @Column(name = "must_change_password", nullable = false)
+    @Builder.Default
+    private boolean mustChangePassword = false;
+
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
@@ -76,9 +84,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Le role sera défini par Admin, Customer ou Driver
-        // Par défaut ROLE_CUSTOMER pour les nouveaux inscrits
-        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role));
     }
 
     @Override

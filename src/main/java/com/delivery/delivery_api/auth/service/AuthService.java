@@ -226,19 +226,21 @@ public class AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {
-        return AuthResponse.of(
-                accessToken,
-                refreshToken,
-                System.currentTimeMillis() + 86400000L,
-                user.getUuid(),
-                user.getEmail(),
-                "",   // firstName — sera enrichi dans customer/driver/admin
-                "",   // lastName
-                user.getAuthorities().stream()
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .expiresIn(System.currentTimeMillis() + 86400000L)
+                .uuid(user.getUuid())
+                .email(user.getEmail())
+                .firstName("")
+                .lastName("")
+                .role(user.getAuthorities().stream()
                         .findFirst()
                         .map(a -> a.getAuthority())
-                        .orElse("ROLE_CUSTOMER")
-        );
+                        .orElse("ROLE_CUSTOMER"))
+                .mustChangePassword(user.isMustChangePassword())   // ← ajoute cette ligne
+                .build();
     }
 
     private String getClientIp(HttpServletRequest request) {
