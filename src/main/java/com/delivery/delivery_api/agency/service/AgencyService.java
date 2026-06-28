@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AgencyService {
+public class AgencyService implements IAgencyService {
 
     private final AgencyRepository agencyRepository;
     private final AuditClient auditClient;
@@ -132,8 +132,6 @@ public class AgencyService {
 
         return toResponse(agency, 0L);
     }
-
-    // ===== ACTIVATION / DÉSACTIVATION =====
 
     @Transactional
     public void toggleStatus(String uuid, boolean active) {

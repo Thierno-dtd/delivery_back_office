@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -93,7 +93,6 @@ public class AuthService {
 
         return buildAuthResponse(user, accessToken, refreshToken);
     }
-
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {

@@ -31,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class AdminService implements IAdminService {
 
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
@@ -227,8 +227,6 @@ public class AdminService {
 
         log.info("Mot de passe réinitialisé pour : {}", email);
     }
-
-    // ===== SUPPRESSION (désactivation) =====
 
     @Transactional
     public void deactivate(String uuid) {

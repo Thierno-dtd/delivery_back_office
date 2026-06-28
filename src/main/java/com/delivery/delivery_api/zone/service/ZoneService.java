@@ -26,21 +26,17 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ZoneService {
+public class ZoneService implements IZoneService {
 
     private final ZoneRepository zoneRepository;
     private final AgencyService agencyService;
     private final AuditClient auditClient;
 
-    // ===== CRÉATION =====
-
     @Transactional
     public ZoneResponse create(CreateZoneRequest request) {
 
-        // Valider que l'agence existe et est active
         agencyService.validateAgencyActive(request.getAgencyId());
 
-        // Une agence ne peut pas avoir deux zones avec le même nom
         if (zoneRepository.existsByNameAndAgencyId(request.getName(), request.getAgencyId())) {
             throw new ConflictException(
                     "Une zone avec ce nom existe déjà pour cette agence");
@@ -71,8 +67,6 @@ public class ZoneService {
 
         return toResponse(zone);
     }
-
-    // ===== LECTURE =====
 
     @Transactional(readOnly = true)
     public ZoneResponse findByUuid(String uuid) {
@@ -108,13 +102,10 @@ public class ZoneService {
         return PageResponse.from(zones, content);
     }
 
-    // ===== MISE À JOUR =====
-
     @Transactional
     public ZoneResponse update(String uuid, UpdateZoneRequest request) {
         Zone zone = getByUuidOrThrow(uuid);
 
-        // Vérifier doublon de nom dans la même agence
         if (request.getName() != null
                 && !request.getName().equals(zone.getName())
                 && zoneRepository.existsByNameAndAgencyId(
@@ -134,8 +125,6 @@ public class ZoneService {
         return toResponse(zone);
     }
 
-    // ===== ACTIVATION / DÉSACTIVATION =====
-
     @Transactional
     public void toggleStatus(String uuid, boolean active) {
         if (!zoneRepository.existsByUuid(uuid)) {
@@ -144,8 +133,6 @@ public class ZoneService {
         zoneRepository.updateActiveStatus(uuid, active);
         log.info("Zone {} → active={}", uuid, active);
     }
-
-    // ===== UTILITAIRES (utilisés par d'autres modules) =====
 
     @Transactional(readOnly = true)
     public Zone getByUuidOrThrow(String uuid) {
@@ -170,8 +157,6 @@ public class ZoneService {
             );
         }
     }
-
-    // ===== PRIVÉ =====
 
     private ZoneResponse toResponse(Zone zone) {
         return ZoneResponse.builder()

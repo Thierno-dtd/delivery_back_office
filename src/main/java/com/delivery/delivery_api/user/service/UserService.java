@@ -18,12 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    // ===== RÉCUPÉRER L'UTILISATEUR CONNECTÉ =====
 
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
@@ -31,13 +29,10 @@ public class UserService {
         return toResponse(user);
     }
 
-    // ===== MISE À JOUR PROFIL =====
-
     @Transactional
     public UserResponse updateProfile(UpdateProfileRequest request) {
         User user = getAuthenticatedUser();
 
-        // Changement de mot de passe
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
 
             if (request.getCurrentPassword() == null || request.getCurrentPassword().isBlank()) {
@@ -62,14 +57,11 @@ public class UserService {
             log.info("Mot de passe mis à jour pour : {}", user.getEmail());
         }
 
-        // Rafraîchir depuis la base
         User updated = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", user.getEmail()));
 
         return toResponse(updated);
     }
-
-    // ===== ACTIVER / DÉSACTIVER (ADMIN) =====
 
     @Transactional
     public void toggleActiveStatus(String uuid, boolean active) {
@@ -79,8 +71,6 @@ public class UserService {
         userRepository.updateActiveStatus(uuid, active);
         log.info("Statut utilisateur {} → active={}", uuid, active);
     }
-
-    // ===== UTILITAIRES =====
 
     /**
      * Retourne l'utilisateur actuellement authentifié depuis le SecurityContext

@@ -14,21 +14,14 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtService implements IJwtService {
 
     private final JwtConfig jwtConfig;
 
-    /**
-     * Génère un access token pour un utilisateur
-     */
     public String generateAccessToken(UserDetails userDetails) {
         return generateAccessToken(new HashMap<>(), userDetails);
     }
 
-    /**
-     * Génère un access token avec des claims supplémentaires
-     * ex: role, uuid, agencyId
-     */
     public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .claims(extraClaims)
@@ -39,9 +32,6 @@ public class JwtService {
                 .compact();
     }
 
-    /**
-     * Génère un refresh token (longue durée, sans claims métier)
-     */
     public String generateRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
