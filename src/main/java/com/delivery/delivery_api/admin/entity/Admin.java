@@ -48,9 +48,6 @@ public class Admin {
     private AdminRole role;
 
     // Null si SUPER_ADMIN, renseigné si MANAGER
-    // Pas de @ManyToOne direct vers Agency ici pour éviter une dépendance
-    // circulaire admin <-> agency. On garde l'id brut, le module agency
-    // exposera un service pour résoudre l'agence si besoin.
     @Column(name = "agency_id")
     private Long agencyId;
 
