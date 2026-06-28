@@ -6,6 +6,7 @@ import com.delivery.delivery_api.admin.dto.response.AdminResponse;
 import com.delivery.delivery_api.admin.entity.Admin;
 import com.delivery.delivery_api.admin.enums.AdminRole;
 import com.delivery.delivery_api.admin.repository.AdminRepository;
+import com.delivery.delivery_api.agency.service.AgencyService;
 import com.delivery.delivery_api.shared.audit.AuditClient;
 import com.delivery.delivery_api.shared.exception.BusinessException;
 import com.delivery.delivery_api.shared.exception.ConflictException;
@@ -37,6 +38,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final AuditClient auditClient;
     private final NotificationClient notificationClient;
+    private final AgencyService agencyService;
 
     private static final String PASSWORD_CHARS =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
@@ -59,6 +61,8 @@ public class AdminService {
         }
 
         if (request.getRole() == AdminRole.MANAGER) {
+            agencyService.validateAgencyActive(request.getAgencyId());
+
             adminRepository.findManagerByAgencyId(request.getAgencyId())
                     .ifPresent(existing -> {
                         throw new ConflictException("Cette agence a déjà un manager assigné");
