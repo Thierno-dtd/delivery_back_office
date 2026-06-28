@@ -18,8 +18,6 @@ public class JwtService {
 
     private final JwtConfig jwtConfig;
 
-    // ===== GÉNÉRATION =====
-
     /**
      * Génère un access token pour un utilisateur
      */
@@ -53,7 +51,6 @@ public class JwtService {
                 .compact();
     }
 
-    // ===== EXTRACTION =====
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -72,8 +69,6 @@ public class JwtService {
         return extractAllClaims(token).get(claimKey);
     }
 
-    // ===== VALIDATION =====
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
@@ -82,8 +77,6 @@ public class JwtService {
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
-    // ===== PRIVÉ =====
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()

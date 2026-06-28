@@ -29,8 +29,6 @@ public class AgencyService {
     private final AgencyRepository agencyRepository;
     private final AuditClient auditClient;
 
-    // ===== CRÉATION =====
-
     @Transactional
     public AgencyResponse create(CreateAgencyRequest request) {
 
@@ -67,8 +65,6 @@ public class AgencyService {
         return toResponse(agency, 0L);
     }
 
-    // ===== LECTURE =====
-
     @Transactional(readOnly = true)
     public AgencyResponse findByUuid(String uuid) {
         Agency agency = getByUuidOrThrow(uuid);
@@ -104,20 +100,16 @@ public class AgencyService {
         return PageResponse.from(agencies, content);
     }
 
-    // ===== MISE À JOUR =====
-
     @Transactional
     public AgencyResponse update(String uuid, UpdateAgencyRequest request) {
         Agency agency = getByUuidOrThrow(uuid);
 
-        // Vérifier que le nouvel email n'est pas déjà pris par une autre agence
         if (request.getEmail() != null
                 && !request.getEmail().equals(agency.getEmail())
                 && agencyRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Agence", "email", request.getEmail());
         }
 
-        // Vérifier que le nouveau nom n'est pas déjà pris
         if (request.getName() != null
                 && !request.getName().equals(agency.getName())
                 && agencyRepository.existsByName(request.getName())) {
@@ -161,8 +153,6 @@ public class AgencyService {
         log.info("Agence {} → active={}", uuid, active);
     }
 
-    // ===== UTILITAIRES (utilisés par d'autres modules) =====
-
     @Transactional(readOnly = true)
     public Agency getByUuidOrThrow(String uuid) {
         return agencyRepository.findByUuid(uuid)
@@ -194,14 +184,10 @@ public class AgencyService {
         }
     }
 
-    // ===== STATS =====
-
     @Transactional(readOnly = true)
     public long countActive() {
         return agencyRepository.countByActive(true);
     }
-
-    // ===== PRIVÉ =====
 
     private AgencyResponse toResponse(Agency agency, Long totalDrivers) {
         return AgencyResponse.builder()
@@ -213,7 +199,7 @@ public class AgencyService {
                 .email(agency.getEmail())
                 .logoUrl(agency.getLogoUrl())
                 .active(agency.isActive())
-                .totalDrivers(totalDrivers)  // enrichi plus tard par DriverService
+                .totalDrivers(totalDrivers)
                 .createdAt(agency.getCreatedAt())
                 .build();
     }

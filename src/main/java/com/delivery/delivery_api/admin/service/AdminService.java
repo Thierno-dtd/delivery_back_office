@@ -43,8 +43,6 @@ public class AdminService {
     private static final String PASSWORD_CHARS =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
 
-    // ===== CRÉATION =====
-
     @Transactional
     public AdminResponse create(CreateAdminRequest request) {
 
@@ -69,22 +67,19 @@ public class AdminService {
                     });
         }
 
-        // Générer un mot de passe temporaire sécurisé
         String temporaryPassword = generateTemporaryPassword();
 
-        // Créer le User
         User user = User.builder()
                 .uuid(KeyGeneratorUtil.generateRandomToken(16))
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(temporaryPassword))
                 .active(true)
                 .emailVerified(true)
-                .mustChangePassword(true)   // ← force le changement au 1er login
+                .mustChangePassword(true)
                 .role(request.getRole().name())
                 .build();
         user = userRepository.save(user);
 
-        // Créer l'Admin
         Admin admin = Admin.builder()
                 .uuid(KeyGeneratorUtil.generateRandomToken(16))
                 .user(user)
@@ -95,11 +90,10 @@ public class AdminService {
                 .build();
         admin = adminRepository.save(admin);
 
-        // Envoyer le mot de passe par email via ton microservice de notification
         notificationClient.sendEmail(
                 request.getEmail(),
                 "Bienvenue sur Delivery Gabon — Vos identifiants de connexion",
-                "admin-welcome",   // nom du template Thymeleaf dans ton microservice
+                "admin-welcome",
                 Map.of(
                         "firstName", request.getFirstName(),
                         "lastName", request.getLastName(),
@@ -123,23 +117,18 @@ public class AdminService {
         return toResponse(admin, user);
     }
 
-    // ===== GÉNÉRATEUR DE MOT DE PASSE TEMPORAIRE =====
-
     private String generateTemporaryPassword() {
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder();
 
-        // Garantir au moins 1 majuscule, 1 minuscule, 1 chiffre
         password.append("ABCDEFGHJKLMNPQRSTUVWXYZ".charAt(random.nextInt(24)));
         password.append("abcdefghijkmnpqrstuvwxyz".charAt(random.nextInt(24)));
         password.append("23456789".charAt(random.nextInt(8)));
 
-        // Compléter jusqu'à 12 caractères
         for (int i = 0; i < 9; i++) {
             password.append(PASSWORD_CHARS.charAt(random.nextInt(PASSWORD_CHARS.length())));
         }
 
-        // Mélanger les caractères
         List<Character> chars = password.chars()
                 .mapToObj(c -> (char) c)
                 .collect(java.util.stream.Collectors.toList());
@@ -150,8 +139,6 @@ public class AdminService {
 
         return shuffled.toString();
     }
-
-    // ===== LECTURE (inchangé) =====
 
     @Transactional(readOnly = true)
     public AdminResponse findByUuid(String uuid) {
@@ -189,8 +176,6 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Admin", "email", email));
     }
 
-    // ===== MISE À JOUR (inchangé) =====
-
     @Transactional
     public AdminResponse update(String uuid, UpdateAdminRequest request) {
         Admin admin = adminRepository.findByUuid(uuid)
@@ -212,8 +197,6 @@ public class AdminService {
         return toResponse(admin, admin.getUser());
     }
 
-    // ===== RÉINITIALISATION MOT DE PASSE (par SUPER_ADMIN) =====
-
     @Transactional
     public void resetPassword(String uuid) {
         Admin admin = adminRepository.findByUuid(uuid)
@@ -225,7 +208,6 @@ public class AdminService {
         userRepository.resetPasswordAndClearFlag(email, passwordEncoder.encode(temporaryPassword));
         userRepository.updateActiveStatus(admin.getUuid(), true);
 
-        // Forcer le changement au prochain login
         User user = admin.getUser();
         user.setMustChangePassword(true);
         userRepository.save(user);
@@ -265,8 +247,6 @@ public class AdminService {
 
         log.info("Admin désactivé : {}", uuid);
     }
-
-    // ===== PRIVÉ =====
 
     private AdminResponse toResponse(Admin admin, User user) {
         return AdminResponse.builder()

@@ -1,4 +1,4 @@
-package com.delivery.delivery_api.agency.dto.response;
+package com.delivery.delivery_api.zone.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,17 +13,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AgencyResponse {
+public class ZoneResponse {
 
     private String uuid;
+    private String agencyUuid;
+    private String agencyName;
     private String name;
-    private String slogan;
-    private String address;
-    private String telephone;
-    private String email;
-    private String logoUrl;
+    private String city;
+    private Double baseFee;
     private boolean active;
-    private long totalDrivers;
-    private long activeOrders;
     private LocalDateTime createdAt;
 }

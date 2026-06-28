@@ -26,6 +26,6 @@ public class CreateAdminRequest {
     @NotNull(message = "Le rôle est obligatoire")
     private AdminRole role;
 
-    // Obligatoire seulement si role = MANAGER (vérifié dans le service)
+    // Obligatoire seulement si role = MANAGER
     private Long agencyId;
 }

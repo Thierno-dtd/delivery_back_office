@@ -40,11 +40,9 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final AuditClient auditClient;
 
-    // Préfixes des clés Redis
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
     private static final String BLACKLIST_PREFIX = "blacklist:";
 
-    // ===== LOGIN =====
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
@@ -74,19 +72,16 @@ public class AuthService {
                     "ACCOUNT_DISABLED", HttpStatus.FORBIDDEN);
         }
 
-        // Générer les tokens avec claims métier
         Map<String, Object> claims = buildClaims(user);
         String accessToken = jwtService.generateAccessToken(claims, user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        // Stocker le refresh token dans Redis (7 jours)
         redisTemplate.opsForValue().set(
                 REFRESH_TOKEN_PREFIX + user.getEmail(),
                 refreshToken,
                 7, TimeUnit.DAYS
         );
 
-        // Audit
         auditClient.log(
                 "LOGIN_SUCCESS",
                 user.getEmail(),
@@ -99,16 +94,13 @@ public class AuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
-    // ===== REGISTER (CUSTOMER uniquement) =====
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
-        // Vérifier si l'email existe déjà
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Utilisateur", "email", request.getEmail());
         }
 
-        // Créer l'utilisateur de base
         User user = User.builder()
                 .uuid(KeyGeneratorUtil.generateRandomToken(16))
                 .email(request.getEmail())
@@ -119,19 +111,16 @@ public class AuthService {
 
         userRepository.save(user);
 
-        // Générer les tokens
         Map<String, Object> claims = buildClaims(user);
         String accessToken = jwtService.generateAccessToken(claims, user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        // Stocker le refresh token dans Redis
         redisTemplate.opsForValue().set(
                 REFRESH_TOKEN_PREFIX + user.getEmail(),
                 refreshToken,
                 7, TimeUnit.DAYS
         );
 
-        // Audit
         auditClient.log(
                 "REGISTER_SUCCESS",
                 user.getEmail(),
@@ -144,13 +133,10 @@ public class AuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
-    // ===== REFRESH TOKEN =====
-
     @Transactional(readOnly = true)
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        // Extraire l'email du refresh token
         String email;
         try {
             email = jwtService.extractEmail(refreshToken);
@@ -158,7 +144,6 @@ public class AuthService {
             throw new UnauthorizedException("Refresh token invalide");
         }
 
-        // Vérifier que le token est dans Redis (pas révoqué)
         String storedToken = (String) redisTemplate.opsForValue()
                 .get(REFRESH_TOKEN_PREFIX + email);
 
@@ -166,7 +151,6 @@ public class AuthService {
             throw new UnauthorizedException("Refresh token expiré ou révoqué");
         }
 
-        // Charger l'utilisateur et générer un nouvel access token
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", email));
 
@@ -180,8 +164,6 @@ public class AuthService {
         return buildAuthResponse(user, newAccessToken, refreshToken);
     }
 
-    // ===== LOGOUT =====
-
     @Transactional
     public void logout(String authHeader, HttpServletRequest httpRequest) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -193,7 +175,6 @@ public class AuthService {
         try {
             String email = jwtService.extractEmail(token);
 
-            // Blacklister l'access token jusqu'à son expiration
             long expiration = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
             if (expiration > 0) {
                 redisTemplate.opsForValue().set(
@@ -204,7 +185,6 @@ public class AuthService {
                 );
             }
 
-            // Supprimer le refresh token de Redis
             redisTemplate.delete(REFRESH_TOKEN_PREFIX + email);
 
             auditClient.log("LOGOUT", email, "Déconnexion", getClientIp(httpRequest));
@@ -215,13 +195,9 @@ public class AuthService {
         }
     }
 
-    // ===== PRIVÉ =====
-
     private Map<String, Object> buildClaims(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("uuid", user.getUuid());
-        // Le role sera ajouté dans les modules admin/customer/driver
-        // via leurs propres méthodes de login si nécessaire
         return claims;
     }
 
@@ -239,7 +215,7 @@ public class AuthService {
                         .findFirst()
                         .map(a -> a.getAuthority())
                         .orElse("ROLE_CUSTOMER"))
-                .mustChangePassword(user.isMustChangePassword())   // ← ajoute cette ligne
+                .mustChangePassword(user.isMustChangePassword())
                 .build();
     }
 

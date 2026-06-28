@@ -72,7 +72,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             log.warn("JWT invalide sur [{}] : {}", request.getRequestURI(), e.getMessage());
-            // On ne bloque pas — SecurityConfig refusera l'accès aux endpoints protégés
         }
 
         filterChain.doFilter(request, response);

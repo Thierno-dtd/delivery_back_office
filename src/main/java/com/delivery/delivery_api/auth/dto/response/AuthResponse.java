@@ -17,8 +17,6 @@ public class AuthResponse {
     private String refreshToken;
     private String tokenType;
     private long expiresIn;
-
-    // Infos basiques de l'utilisateur connecté
     private String uuid;
     private String email;
     private String firstName;

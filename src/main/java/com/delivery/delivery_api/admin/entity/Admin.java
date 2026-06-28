@@ -32,7 +32,6 @@ public class Admin {
     @Column(nullable = false, unique = true, length = 64)
     private String uuid;
 
-    // Lien 1-1 vers User (auth commune)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
