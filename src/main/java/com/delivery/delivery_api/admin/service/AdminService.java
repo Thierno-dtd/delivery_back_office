@@ -67,6 +67,10 @@ public class AdminService implements IAdminService {
                     });
         }
 
+        if (request.getRole() == AdminRole.GESTIONNAIRE) {
+            agencyService.validateAgencyActive(request.getAgencyId());
+        }
+
         String temporaryPassword = generateTemporaryPassword();
 
         User user = User.builder()

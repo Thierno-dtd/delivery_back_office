@@ -66,8 +66,26 @@ public class SecurityConfig {
                 // Règles d'accès
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/v1/admin/**").hasAnyRole("SUPER_ADMIN", "MANAGER")
+
+                        // Gestion globale — super admin uniquement
+                        .requestMatchers("/v1/admins/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/v1/agencies/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/v1/zones/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/v1/fees/**").hasRole("SUPER_ADMIN")
+
+                        // Gestion opérationnelle agence — manager et gestionnaire
+                        .requestMatchers("/v1/drivers/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE")
+                        .requestMatchers("/v1/orders/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE", "CUSTOMER", "DRIVER")
+                        .requestMatchers("/v1/packages/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE", "CUSTOMER", "DRIVER")
+                        .requestMatchers("/v1/tracking/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE", "CUSTOMER", "DRIVER")
+                        .requestMatchers("/v1/payments/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE", "CUSTOMER")
+                        .requestMatchers("/v1/ratings/**").hasAnyRole("CUSTOMER", "DRIVER")
+
+                        // Profil utilisateur — tout le monde authentifié
+                        .requestMatchers("/v1/users/**").authenticated()
+                        .requestMatchers("/v1/customers/**").hasAnyRole("SUPER_ADMIN", "MANAGER", "GESTIONNAIRE", "CUSTOMER")
+                        .requestMatchers("/v1/devices/**").hasAnyRole("CUSTOMER", "DRIVER")
+
                         .anyRequest().authenticated()
                 )
 
