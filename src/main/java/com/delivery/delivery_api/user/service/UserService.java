@@ -23,12 +23,14 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
         User user = getAuthenticatedUser();
         return toResponse(user);
     }
 
+    @Override
     @Transactional
     public UserResponse updateProfile(UpdateProfileRequest request) {
         User user = getAuthenticatedUser();
@@ -63,6 +65,7 @@ public class UserService implements IUserService {
         return toResponse(updated);
     }
 
+    @Override
     @Transactional
     public void toggleActiveStatus(String uuid, boolean active) {
         if (!userRepository.existsByUuid(uuid)) {
@@ -72,9 +75,7 @@ public class UserService implements IUserService {
         log.info("Statut utilisateur {} → active={}", uuid, active);
     }
 
-    /**
-     * Retourne l'utilisateur actuellement authentifié depuis le SecurityContext
-     */
+    @Override
     public User getAuthenticatedUser() {
         Object principal = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -87,15 +88,14 @@ public class UserService implements IUserService {
         throw new UnauthorizedException("Utilisateur non authentifié");
     }
 
-    /**
-     * Récupère un utilisateur par son uuid — utilisé par d'autres modules
-     */
+    @Override
     @Transactional(readOnly = true)
     public User findByUuidOrThrow(String uuid) {
         return userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "uuid", uuid));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public User findByEmailOrThrow(String email) {
         return userRepository.findByEmail(email)

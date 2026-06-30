@@ -18,10 +18,12 @@ public class JwtService implements IJwtService {
 
     private final JwtConfig jwtConfig;
 
+    @Override
     public String generateAccessToken(UserDetails userDetails) {
         return generateAccessToken(new HashMap<>(), userDetails);
     }
 
+    @Override
     public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .claims(extraClaims)
@@ -32,6 +34,7 @@ public class JwtService implements IJwtService {
                 .compact();
     }
 
+    @Override
     public String generateRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -42,10 +45,12 @@ public class JwtService implements IJwtService {
     }
 
 
+    @Override
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    @Override
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -55,15 +60,18 @@ public class JwtService implements IJwtService {
         return claimsResolver.apply(claims);
     }
 
+    @Override
     public Object extractClaim(String token, String claimKey) {
         return extractAllClaims(token).get(claimKey);
     }
 
+    @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
+    @Override
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

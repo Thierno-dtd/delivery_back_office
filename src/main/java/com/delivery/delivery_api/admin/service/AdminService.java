@@ -43,6 +43,7 @@ public class AdminService implements IAdminService {
     private static final String PASSWORD_CHARS =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
 
+    @Override
     @Transactional
     public AdminResponse create(CreateAdminRequest request) {
 
@@ -144,6 +145,7 @@ public class AdminService implements IAdminService {
         return shuffled.toString();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public AdminResponse findByUuid(String uuid) {
         Admin admin = adminRepository.findByUuid(uuid)
@@ -151,6 +153,7 @@ public class AdminService implements IAdminService {
         return toResponse(admin, admin.getUser());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public AdminResponse findByUserEmail(String email) {
         Admin admin = adminRepository.findByUserEmail(email)
@@ -158,6 +161,7 @@ public class AdminService implements IAdminService {
         return toResponse(admin, admin.getUser());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<AdminResponse> findByRole(AdminRole role, int page, int size) {
         Page<Admin> admins = adminRepository.findByRole(role, PaginationUtil.build(page, size));
@@ -167,6 +171,7 @@ public class AdminService implements IAdminService {
         return PageResponse.from(admins, content);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<AdminResponse> findByAgencyId(Long agencyId) {
         return adminRepository.findByAgencyId(agencyId).stream()
@@ -180,6 +185,7 @@ public class AdminService implements IAdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Admin", "email", email));
     }
 
+    @Override
     @Transactional
     public AdminResponse update(String uuid, UpdateAdminRequest request) {
         Admin admin = adminRepository.findByUuid(uuid)
@@ -201,6 +207,7 @@ public class AdminService implements IAdminService {
         return toResponse(admin, admin.getUser());
     }
 
+    @Override
     @Transactional
     public void resetPassword(String uuid) {
         Admin admin = adminRepository.findByUuid(uuid)
@@ -232,6 +239,7 @@ public class AdminService implements IAdminService {
         log.info("Mot de passe réinitialisé pour : {}", email);
     }
 
+    @Override
     @Transactional
     public void deactivate(String uuid) {
         Admin admin = adminRepository.findByUuid(uuid)

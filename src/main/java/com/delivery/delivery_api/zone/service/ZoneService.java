@@ -32,6 +32,7 @@ public class ZoneService implements IZoneService {
     private final AgencyService agencyService;
     private final AuditClient auditClient;
 
+    @Override
     @Transactional
     public ZoneResponse create(CreateZoneRequest request) {
 
@@ -68,12 +69,14 @@ public class ZoneService implements IZoneService {
         return toResponse(zone);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public ZoneResponse findByUuid(String uuid) {
         Zone zone = getByUuidOrThrow(uuid);
         return toResponse(zone);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<ZoneResponse> findByAgency(Long agencyId, int page, int size) {
         agencyService.validateAgencyExists(agencyId);
@@ -85,6 +88,7 @@ public class ZoneService implements IZoneService {
         return PageResponse.from(zones, content);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<ZoneResponse> findActiveByAgency(Long agencyId) {
         agencyService.validateAgencyExists(agencyId);
@@ -93,6 +97,7 @@ public class ZoneService implements IZoneService {
                 .toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<ZoneResponse> findAll(int page, int size) {
         Page<Zone> zones = zoneRepository.findAll(PaginationUtil.build(page, size));
@@ -102,6 +107,7 @@ public class ZoneService implements IZoneService {
         return PageResponse.from(zones, content);
     }
 
+    @Override
     @Transactional
     public ZoneResponse update(String uuid, UpdateZoneRequest request) {
         Zone zone = getByUuidOrThrow(uuid);
@@ -125,6 +131,7 @@ public class ZoneService implements IZoneService {
         return toResponse(zone);
     }
 
+    @Override
     @Transactional
     public void toggleStatus(String uuid, boolean active) {
         if (!zoneRepository.existsByUuid(uuid)) {
@@ -134,18 +141,21 @@ public class ZoneService implements IZoneService {
         log.info("Zone {} → active={}", uuid, active);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Zone getByUuidOrThrow(String uuid) {
         return zoneRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone", "uuid", uuid));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Zone getByIdOrThrow(Long id) {
         return zoneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone", "id", id));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public void validateZoneActive(Long zoneId) {
         Zone zone = getByIdOrThrow(zoneId);

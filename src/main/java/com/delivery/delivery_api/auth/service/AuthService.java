@@ -43,7 +43,7 @@ public class AuthService implements IAuthService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
     private static final String BLACKLIST_PREFIX = "blacklist:";
 
-
+    @Override
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         try {
@@ -94,6 +94,7 @@ public class AuthService implements IAuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
+    @Override
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -132,6 +133,7 @@ public class AuthService implements IAuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
@@ -163,6 +165,7 @@ public class AuthService implements IAuthService {
         return buildAuthResponse(user, newAccessToken, refreshToken);
     }
 
+    @Override
     @Transactional
     public void logout(String authHeader, HttpServletRequest httpRequest) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

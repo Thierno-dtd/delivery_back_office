@@ -29,6 +29,7 @@ public class AgencyService implements IAgencyService {
     private final AgencyRepository agencyRepository;
     private final AuditClient auditClient;
 
+    @Override
     @Transactional
     public AgencyResponse create(CreateAgencyRequest request) {
 
@@ -65,12 +66,14 @@ public class AgencyService implements IAgencyService {
         return toResponse(agency, 0L);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public AgencyResponse findByUuid(String uuid) {
         Agency agency = getByUuidOrThrow(uuid);
         return toResponse(agency, 0L);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<AgencyResponse> findAll(int page, int size) {
         Page<Agency> agencies = agencyRepository.findAll(PaginationUtil.build(page, size));
@@ -80,6 +83,7 @@ public class AgencyService implements IAgencyService {
         return PageResponse.from(agencies, content);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<AgencyResponse> findActive(int page, int size) {
         Page<Agency> agencies = agencyRepository.findByActive(
@@ -90,6 +94,7 @@ public class AgencyService implements IAgencyService {
         return PageResponse.from(agencies, content);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PageResponse<AgencyResponse> search(String name, int page, int size) {
         Page<Agency> agencies = agencyRepository.findByNameContainingIgnoreCase(
@@ -133,6 +138,7 @@ public class AgencyService implements IAgencyService {
         return toResponse(agency, 0L);
     }
 
+    @Override
     @Transactional
     public void toggleStatus(String uuid, boolean active) {
         if (!agencyRepository.existsByUuid(uuid)) {
@@ -151,12 +157,14 @@ public class AgencyService implements IAgencyService {
         log.info("Agence {} → active={}", uuid, active);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Agency getByUuidOrThrow(String uuid) {
         return agencyRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Agence", "uuid", uuid));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Agency getByIdOrThrow(Long id) {
         return agencyRepository.findById(id)
@@ -170,6 +178,7 @@ public class AgencyService implements IAgencyService {
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     public void validateAgencyActive(Long agencyId) {
         Agency agency = getByIdOrThrow(agencyId);
@@ -182,6 +191,7 @@ public class AgencyService implements IAgencyService {
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     public long countActive() {
         return agencyRepository.countByActive(true);
