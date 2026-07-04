@@ -11,7 +11,6 @@ import java.util.Base64;
 public class KeyGeneratorUtil {
 
     private KeyGeneratorUtil() {
-        // Classe utilitaire — pas d'instanciation
     }
 
     /**
@@ -73,7 +72,6 @@ public class KeyGeneratorUtil {
     }
 
     // ===== MAIN pour générer et afficher les clés =====
-    // Lance cette méthode une fois pour obtenir ta clé JWT de prod
     public static void main(String[] args) {
         System.out.println("=== Générateur de clés Delivery API ===");
         System.out.println();
