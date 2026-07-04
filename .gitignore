@@ -78,4 +78,5 @@ replay_pid*
 firebase-credentials.json
 google-services.json
 
-
+# Firebase Admin SDK
+src/main/resources/firebase/firebase-credentials.json

@@ -10,6 +10,8 @@ import com.delivery.delivery_api.tracking.dto.request.LocationUpdateRequest;
 import com.delivery.delivery_api.tracking.dto.response.LocationResponse;
 import com.delivery.delivery_api.tracking.entity.DriverLocation;
 import com.delivery.delivery_api.tracking.repository.DriverLocationRepository;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +20,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -62,9 +66,51 @@ public class TrackingService implements ITrackingService {
 
         LocationResponse locationResponse = buildResponse(location, driver);
         publishLocation(driver, order, locationResponse);
+        publishToFirebase(driver, order, request);
 
         log.debug("Position mise à jour — livreur: {} lat:{} lng:{}",
                 driver.getUser().getEmail(), request.getLat(), request.getLng());
+    }
+
+    private void publishToFirebase(Driver driver, Order order,
+                                   LocationUpdateRequest request) {
+        try {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+            // Position par commande
+            if (order != null) {
+                DatabaseReference orderRef = database
+                        .getReference("locations")
+                        .child(order.getUuid());
+
+                Map<String, Object> locationData = new HashMap<>();
+                locationData.put("driverUuid", driver.getUuid());
+                locationData.put("driverName",
+                        driver.getFirstName() + " " + driver.getLastName());
+                locationData.put("lat", request.getLat());
+                locationData.put("lng", request.getLng());
+                locationData.put("timestamp", System.currentTimeMillis());
+                locationData.put("status", order.getStatus().name());
+
+                orderRef.setValueAsync(locationData);
+            }
+
+            // Statut du livreur
+            DatabaseReference driverRef = database
+                    .getReference("driverStatus")
+                    .child(driver.getUuid());
+
+            Map<String, Object> driverData = new HashMap<>();
+            driverData.put("status", driver.getStatus().name());
+            driverData.put("lat", request.getLat());
+            driverData.put("lng", request.getLng());
+            driverData.put("timestamp", System.currentTimeMillis());
+
+            driverRef.setValueAsync(driverData);
+
+        } catch (Exception e) {
+            log.warn("Firebase indisponible : {}", e.getMessage());
+        }
     }
 
     @Override
