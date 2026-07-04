@@ -15,7 +15,7 @@ import java.io.IOException;
 @Configuration
 public class FirebaseConfig {
 
-    @Value("${app.firebase.credentials-path:firebase-credentials.json}")
+    @Value("${app.firebase.credentials-path:classpath:firebase/firebase-credentials.json}")
     private String credentialsPath;
 
     @Value("${app.firebase.database-url}")
